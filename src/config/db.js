@@ -1,4 +1,3 @@
-// src/config/db.js
 const { Sequelize } = require("sequelize");
 require("dotenv").config();
 
@@ -9,7 +8,7 @@ const sequelize = new Sequelize(
   {
     host: process.env.DB_HOST,
     dialect: "mysql",
-    logging: false, // ou true se quiser logar as queries
+    logging: false,
   }
 );
 
