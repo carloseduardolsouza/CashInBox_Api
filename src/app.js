@@ -13,13 +13,15 @@ const assinaturaRoutes = require("./routes/assinaturaRoutes");
 const pagamentoRoutes = require("./routes/pagamentoRoutes");
 const autorizacoes = require("./routes/autorizaçãoRoutes");
 const userRoutes = require("./routes/userRoutes");
+const authRoutes = require("./routes/auth");
 const authMiddleware = require("./middlewares/authMiddleware");
+const verificaPagamento = require("./middlewares/verificaPagamento");
 
 app.use(express.json());
 
 app.use("/usuarios", userRoutes);
 app.use("/auth", authRoutes);
-app.use("/clientes", authMiddleware, clienteRoutes);
+app.use("/clientes", authMiddleware, verificaPagamento, clienteRoutes);
 app.use("/planos", authMiddleware, planoRoutes);
 app.use("/assinaturas", authMiddleware, assinaturaRoutes);
 

@@ -41,12 +41,11 @@ exports.login = async (req, res) => {
 
     const token = jwt.sign(
       {
-        id: usuario.id,
-        cliente_id: usuario.cliente_id,
+        id_usuario: usuario.id,
         role: usuario.role
       },
       SECRET,
-      { expiresIn: '1d' }
+      { expiresIn: '7d' }
     );
 
     res.json({ token });
