@@ -14,7 +14,9 @@ router.get("/listarPlanos", planosController.listar);
 router.put("/editarPlanos/:id", planosController.editar);
 router.delete("/exluirPlanos/:id", planosController.excluir);
 
-router.post("/cadastrarAssinatura", assinaturaController.cadastrarAssinatura);
-router.get("/listarAssinaturas", assinaturaController.listarAssinaturas);
+router.post("/cadastrarAssinatura", assinaturaController.cadastrar);
+router.get("/listarAssinaturas", assinaturaController.listar);
+router.put("/editarAssinaturas/:id", assinaturaController.editar);
+router.delete("/exluirAssinaturas/:id", assinaturaController.excluir);
 
 module.exports = router;

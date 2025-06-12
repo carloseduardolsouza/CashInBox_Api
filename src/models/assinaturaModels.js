@@ -12,72 +12,53 @@ const Assinatura = sequelize.define(
       autoIncrement: true,
       allowNull: false,
     },
-    // Chave estrangeira para o Usuário
+    renovado_em: {
+      type: DataTypes.DATE,
+      allowNull: true, // Corresponde ao DATETIME sem NOT NULL no SQL
+    },
+    vencimento_em: {
+      type: DataTypes.DATE,
+      allowNull: true, // Corresponde ao DATETIME sem NOT NULL no SQL
+    },
     usuario_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "usuarios", // Nome da tabela no banco de dados
+        model: "usuarios", // Nome da tabela no banco de dados para a FK
         key: "id",
       },
     },
-    // Chave estrangeira para o Plano
     plano_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "planos", // Nome da tabela no banco de dados
+        model: "planos", // Nome da tabela no banco de dados para a FK
         key: "id",
       },
     },
-    data_inicio: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW, // Data em que a assinatura foi iniciada
-    },
-    data_fim: {
-      type: DataTypes.DATE,
-      allowNull: true, // Data de término prevista (pode ser nula para planos perpétuos ou até o cancelamento)
-    },
     status: {
-      type: DataTypes.ENUM("ativa", "inativa", "cancelada", "suspensa"), // Status da assinatura em si
+      // Usando ENUM para garantir a integridade dos dados, como na sua requisição anterior,
+      // mesmo que a query SQL inicial tenha VARCHAR. Isso é mais robusto.
+      type: DataTypes.ENUM("ativa", "inativa", "cancelada", "suspensa"),
       allowNull: false,
-      defaultValue: "inativa", // Começa como inativa até o primeiro pagamento ser confirmado
+      defaultValue: "inativa", // Valor padrão inicial
     },
     status_pagamento: {
+      // Usando ENUM pelas mesmas razões do 'status'.
       type: DataTypes.ENUM(
         "pendente",
         "pago",
         "atrasado",
         "falhou",
         "estornado"
-      ), // Status do último pagamento/próximo pagamento
+      ),
       allowNull: false,
-      defaultValue: "pendente",
-    },
-    data_ultimo_pagamento: {
-      type: DataTypes.DATE,
-      allowNull: true, // Data do último pagamento efetivado
-    },
-    proximo_vencimento: {
-      type: DataTypes.DATE,
-      allowNull: true, // Data do próximo pagamento esperado
-    },
-    id_transacao_pagarme: {
-      type: DataTypes.STRING(255), // ID da transação no Pagar.me
-      allowNull: true,
-      unique: true, // Opcional: Garante que o ID da transação seja único, útil para evitar duplicatas de webhook
-    },
-    valor_pago: {
-      type: DataTypes.DECIMAL(10, 2), // Valor do último pagamento (pode ser diferente do valor do plano se houver promoções, etc.)
-      allowNull: true,
+      defaultValue: "pendente", // Valor padrão inicial
     },
   },
   {
-    tableName: "assinaturas", // Nome da tabela no banco de dados
-    timestamps: true, // Sequelize gerenciará `createdAt` e `updatedAt` para esta tabela
-    // O nome do modelo em camelCase (Assinatura) será convertido para snake_case (assinaturas)
-    // para o nome da tabela por padrão, mas é bom especificar.
+    tableName: "assinaturas", // Garante que o Sequelize use 'assinaturas' como nome da tabela
+    timestamps: true, // Sequelize gerenciará 'createdAt' e 'updatedAt' automaticamente
   }
 );
 
