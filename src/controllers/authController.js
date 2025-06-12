@@ -1,55 +1,78 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const Usuario = require('../models/Usuario');
-const Cliente = require('../models/Cliente');
+// Importa o modelo Usuario. Ajuste o caminho conforme a estrutura do seu projeto.
+const Usuario = require("../models/usuariosModels");
 
-const SECRET = process.env.JWT_SECRET || 'segreto';
+// Importa a biblioteca bcrypt para comparar senhas hashed.
+const bcrypt = require("bcrypt");
 
-exports.register = async (req, res) => {
-  try {
-    const { email, senha, cliente_id } = req.body;
+// Importa a biblioteca jsonwebtoken para gerar JWTs.
+const jwt = require("jsonwebtoken");
 
-    if (!email || !senha || !cliente_id) {
-      return res.status(400).json({ erro: 'Campos obrigatórios ausentes' });
-    }
-
-    const cliente = await Cliente.findByPk(cliente_id);
-    if (!cliente) return res.status(404).json({ erro: 'Cliente não encontrado' });
-
-    const existente = await Usuario.findOne({ where: { email } });
-    if (existente) return res.status(409).json({ erro: 'E-mail já registrado' });
-
-    const senha_hash = await bcrypt.hash(senha, 10);
-
-    const novo = await Usuario.create({ email, senha_hash, cliente_id });
-
-    res.status(201).json({ id: novo.id, email: novo.email });
-  } catch (e) {
-    res.status(500).json({ erro: 'Erro interno', detalhes: e.message });
-  }
-};
-
-exports.login = async (req, res) => {
+/**
+ * @function login
+ * @description Autentica um usuário e retorna um token JWT.
+ * @param {Object} req - Objeto de requisição do Express. Espera 'email' e 'senha' no corpo.
+ * @param {Object} res - Objeto de resposta do Express.
+ */
+const login = async (req, res) => {
   try {
     const { email, senha } = req.body;
 
+    // --- Validação Básica ---
+    if (!email || !senha) {
+      return res
+        .status(400)
+        .json({ message: "Email e senha são obrigatórios." });
+    }
+
+    // --- 1. Buscar o Usuário pelo Email ---
     const usuario = await Usuario.findOne({ where: { email } });
-    if (!usuario) return res.status(401).json({ erro: 'Credenciais inválidas' });
 
-    const senhaConfere = await bcrypt.compare(senha, usuario.senha_hash);
-    if (!senhaConfere) return res.status(401).json({ erro: 'Credenciais inválidas' });
+    // Se o usuário não for encontrado, retorna erro de credenciais inválidas.
+    if (!usuario) {
+      return res.status(401).json({
+        message: "Credenciais inválidas. Verifique seu email ou senha.",
+      });
+    }
 
+    // --- 2. Comparar a Senha Fornecida com o Hash Salvo ---
+    // Usa bcrypt.compare para verificar se a senha fornecida corresponde ao hash armazenado.
+    const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+
+    // Se a senha não for válida, retorna erro de credenciais inválidas.
+    if (!senhaValida) {
+      return res.status(401).json({
+        message: "Credenciais inválidas. Verifique seu email ou senha.",
+      });
+    }
+
+    // --- 3. Gerar um JSON Web Token (JWT) ---
+    // A chave secreta é carregada das variáveis de ambiente (process.env.JWT_SECRET).
+    // Certifique-se de que 'dotenv' esteja configurado e que JWT_SECRET esteja no seu .env.
+    // O payload do token inclui informações que podem ser úteis para autorização (id, email, role).
     const token = jwt.sign(
       {
-        id_usuario: usuario.id,
-        role: usuario.role
+        id: usuario.id,
+        email: usuario.email,
+        role: usuario.role,
       },
-      SECRET,
-      { expiresIn: '7d' }
+      process.env.JWT_SECRET, // O segredo deve estar definido no seu arquivo .env
+      { expiresIn: "3d" } // O token expira em 3 dias (ajuste conforme necessário)
     );
 
-    res.json({ token });
-  } catch (e) {
-    res.status(500).json({ erro: 'Erro interno', detalhes: e.message });
+    // --- 4. Retornar o Token JWT ---
+    // Em caso de sucesso, retorna o token para o cliente.
+    res.status(200).json({ message: "Login bem-sucedido!", token });
+  } catch (error) {
+    // --- Tratamento de Erros ---
+    console.error("Erro no processo de login:", error);
+    res.status(500).json({
+      message: "Ocorreu um erro interno no servidor durante o login.",
+      error: error.message,
+    });
   }
+};
+
+// Exporta a função de login para ser usada em suas rotas.
+module.exports = {
+  login,
 };

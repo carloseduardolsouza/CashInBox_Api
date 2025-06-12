@@ -3,29 +3,22 @@ const app = express();
 
 const sequelize = require("./config/db");
 sequelize
-  .sync({ alter: true }) // só usar em dev, em prod usar migrations
+  .sync({ alter: true })
   .then(() => console.log("Banco sincronizado"))
   .catch((err) => console.error("Erro ao sincronizar banco:", err));
 
-const clienteRoutes = require("./routes/clienteRoutes");
-const planoRoutes = require("./routes/planoRoutes");
-const assinaturaRoutes = require("./routes/assinaturaRoutes");
-const pagamentoRoutes = require("./routes/pagamentoRoutes");
-const autorizacoes = require("./routes/autorizaçãoRoutes");
+const verifyToken = require("./middlewares/verifyToken");
+
+const admRoutes = require("./routes/admRoutes");
+const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const authRoutes = require("./routes/auth");
-const authMiddleware = require("./middlewares/authMiddleware");
-const verificaPagamento = require("./middlewares/verificaPagamento");
+const assinaturaRoutes = require("./routes/assinaturaRoutes")
 
 app.use(express.json());
 
-app.use("/usuarios", userRoutes);
-app.use("/auth", authRoutes);
-app.use("/clientes", authMiddleware, verificaPagamento, clienteRoutes);
-app.use("/planos", authMiddleware, planoRoutes);
-app.use("/assinaturas", authMiddleware, assinaturaRoutes);
+app.use("/admin", admRoutes);
 
-app.use("/autorizacoes", authMiddleware, autorizacoes);
-app.use("/pagamentos", authMiddleware, pagamentoRoutes);
+app.use("/auth", authRoutes);
+app.use("/user", verifyToken, userRoutes);
 
 module.exports = app;
