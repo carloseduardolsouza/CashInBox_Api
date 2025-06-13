@@ -19,6 +19,7 @@ const login = async (req, res) => {
 
     // --- Validação Básica ---
     if (!email || !senha) {
+      console.log("Erro: Email ou senha não fornecidos.");
       return res
         .status(400)
         .json({ message: "Email e senha são obrigatórios." });
@@ -29,10 +30,12 @@ const login = async (req, res) => {
 
     // Se o usuário não for encontrado, retorna erro de credenciais inválidas.
     if (!usuario) {
+      console.log(`Usuário com email ${email} não encontrado.`);
       return res.status(401).json({
         message: "Credenciais inválidas. Verifique seu email ou senha.",
       });
     }
+    console.log(`Usuário pediu acesso: ${usuario.nome}.`);
 
     // --- 2. Comparar a Senha Fornecida com o Hash Salvo ---
     // Usa bcrypt.compare para verificar se a senha fornecida corresponde ao hash armazenado.
@@ -40,6 +43,7 @@ const login = async (req, res) => {
 
     // Se a senha não for válida, retorna erro de credenciais inválidas.
     if (!senhaValida) {
+      console.log("Senha inválida para o usuário.");
       return res.status(401).json({
         message: "Credenciais inválidas. Verifique seu email ou senha.",
       });
@@ -69,6 +73,8 @@ const login = async (req, res) => {
       message: "Ocorreu um erro interno no servidor durante o login.",
       error: error.message,
     });
+  } finally {
+    console.log("Função de login finalizada.");
   }
 };
 
