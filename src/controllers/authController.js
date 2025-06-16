@@ -74,7 +74,6 @@ const login = async (req, res) => {
       error: error.message,
     });
   } finally {
-    console.log("Função de login finalizada.");
   }
 };
 
