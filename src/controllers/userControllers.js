@@ -157,7 +157,51 @@ const gerarBoleto = async (req, res) => {
   }
 };
 
+const informacoesPlano = async (req, res) => {
+  try {
+    const userId = req.user?.id || req.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Usuário não autenticado." });
+    }
+
+    const assinatura = await Assinatura.findOne({
+      where: { usuario_id: userId },
+      include: [
+        {
+          model: Plano,
+          as: "plano",
+          attributes: ["nome", "valor"],
+        },
+      ],
+    });
+
+    if (!assinatura) {
+      return res.status(404).json({ message: "Assinatura não encontrada." });
+    }
+
+    if (!assinatura.plano) {
+      return res
+        .status(500)
+        .json({ message: "Plano não vinculado à assinatura." });
+    }
+
+    res.status(200).json({
+      plano: assinatura.plano.nome,
+      valor: assinatura.plano.valor,
+      vencimento_em: assinatura.vencimento_em,
+    });
+  } catch (error) {
+    console.error("❌ Erro ao obter informações do plano:", error);
+    res.status(500).json({
+      message: "Erro ao buscar informações do plano.",
+      detalhe: error.message || error,
+    });
+  }
+};
+
 module.exports = {
   frequencia,
   gerarBoleto,
+  informacoesPlano,
 };

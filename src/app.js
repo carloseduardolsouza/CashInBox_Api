@@ -2,10 +2,6 @@ const express = require("express");
 const app = express();
 
 const sequelize = require("./config/db");
-sequelize
-  .sync({ alter: true })
-  .then(() => console.log("Banco sincronizado"))
-  .catch((err) => console.error("Erro ao sincronizar banco:", err));
 
 const verifyToken = require("./middlewares/verifyToken");
 
