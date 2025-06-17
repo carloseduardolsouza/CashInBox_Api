@@ -11,11 +11,14 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "gn-api-sdk-node": "^3.0.4",
     "jsonwebtoken": "^9.0.2",
+    "mercadopago": "^2.7.0",
     "mysql2": "^3.14.1",
     "nodemon": "^3.1.10",
     "sequelize": "^6.37.7"

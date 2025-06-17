@@ -1,5 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db'); // Adjust the path to your Sequelize configuration
+const sequelize = require('../config/db'); // Ajuste o caminho se precisar
 
 const Usuario = sequelize.define('Usuario', {
   id: {
@@ -15,7 +15,7 @@ const Usuario = sequelize.define('Usuario', {
   email: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    unique: true // Assuming email should be unique
+    unique: true
   },
   senha_hash: {
     type: DataTypes.STRING(255),
@@ -24,12 +24,12 @@ const Usuario = sequelize.define('Usuario', {
   role: {
     type: DataTypes.STRING(255),
     allowNull: false,
-    defaultValue: 'user' // Common default role
+    defaultValue: 'user'
   },
   ativo: {
-    type: DataTypes.TINYINT(1), // Or DataTypes.BOOLEAN for better abstraction
+    type: DataTypes.BOOLEAN, // Melhor usar boolean no Sequelize
     allowNull: false,
-    defaultValue: 1 // Assuming 1 means active
+    defaultValue: true
   },
   data_criacao: {
     type: DataTypes.DATE,
@@ -40,10 +40,28 @@ const Usuario = sequelize.define('Usuario', {
     type: DataTypes.DATE,
     allowNull: false,
     defaultValue: DataTypes.NOW
+  },
+
+  // Colunas novas que você quer adicionar:
+  rua: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+  },
+  cidade: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+  },
+  estado: {
+    type: DataTypes.STRING(2),
+    allowNull: true,
+  },
+  cpf_cnpj: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
   }
 }, {
-  tableName: 'usuarios', // Explicitly specify the table name if it's not the pluralized model name
-  timestamps: false // Set to true if you want Sequelize to manage `createdAt` and `updatedAt` columns automatically
+  tableName: 'usuarios',
+  timestamps: false // Mantém false pra não usar createdAt e updatedAt do Sequelize
 });
 
 module.exports = Usuario;
