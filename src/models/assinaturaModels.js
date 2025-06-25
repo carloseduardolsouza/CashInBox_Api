@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db"); // Ajuste o caminho para a sua configuração do Sequelize
-const Usuario = require("./usuariosModels"); // Importa o modelo Usuario
-const Plano = require("./planosModels"); // Importa o modelo Plano
+const sequelize = require("../config/db");
+const Usuario = require("./usuariosModels");
+const Plano = require("./planosModels");
 
 const Assinatura = sequelize.define(
   "Assinatura",
@@ -14,17 +14,17 @@ const Assinatura = sequelize.define(
     },
     renovado_em: {
       type: DataTypes.DATE,
-      allowNull: true, // Corresponde ao DATETIME sem NOT NULL no SQL
+      allowNull: true,
     },
     vencimento_em: {
       type: DataTypes.DATE,
-      allowNull: true, // Corresponde ao DATETIME sem NOT NULL no SQL
+      allowNull: true,
     },
     usuario_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "usuarios", // Nome da tabela no banco de dados para a FK
+        model: "usuarios",
         key: "id",
       },
     },
@@ -32,56 +32,55 @@ const Assinatura = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: "planos", // Nome da tabela no banco de dados para a FK
+        model: "planos",
         key: "id",
       },
     },
     status: {
-      // Usando ENUM para garantir a integridade dos dados, como na sua requisição anterior,
-      // mesmo que a query SQL inicial tenha VARCHAR. Isso é mais robusto.
       type: DataTypes.ENUM("ativa", "inativa", "cancelada", "suspensa"),
       allowNull: false,
-      defaultValue: "inativa", // Valor padrão inicial
+      defaultValue: "inativa",
     },
     status_pagamento: {
-      // Usando ENUM pelas mesmas razões do 'status'.
-      type: DataTypes.ENUM(
-        "pendente",
-        "pago",
-        "atrasado",
-        "falhou",
-        "estornado"
-      ),
+      type: DataTypes.ENUM("pendente", "pago", "atrasado", "falhou", "estornado"),
       allowNull: false,
-      defaultValue: "pendente", // Valor padrão inicial
+      defaultValue: "pendente",
+    },
+    createdAt: {
+      type: DataTypes.DATE,
+      field: "created_at",
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      field: "updated_at",
     },
   },
   {
-    tableName: "assinaturas", // Garante que o Sequelize use 'assinaturas' como nome da tabela
-    timestamps: true, // Sequelize gerenciará 'createdAt' e 'updatedAt' automaticamente
+    tableName: "assinaturas",
+    timestamps: true,
   }
 );
 
-// --- Definição das Associações ---
-// Uma Assinatura pertence a um Usuário
+// Definindo as associações aqui
+// Assinatura pertence a Usuario
 Assinatura.belongsTo(Usuario, {
   foreignKey: "usuario_id",
-  as: "usuario", // Alias para quando for buscar (ex: Assinatura.findOne({ include: 'usuario' }))
+  as: "usuario",
 });
 
-// Uma Assinatura pertence a um Plano
-Assinatura.belongsTo(Plano, {
-  foreignKey: "plano_id",
-  as: "plano", // Alias para quando for buscar (ex: Assinatura.findOne({ include: 'plano' }))
-});
-
-// Um Usuário pode ter muitas Assinaturas
+// Usuario tem muitas Assinaturas
 Usuario.hasMany(Assinatura, {
   foreignKey: "usuario_id",
   as: "assinaturas",
 });
 
-// Um Plano pode ter muitas Assinaturas
+// Assinatura pertence a Plano
+Assinatura.belongsTo(Plano, {
+  foreignKey: "plano_id",
+  as: "plano",
+});
+
+// Plano tem muitas Assinaturas
 Plano.hasMany(Assinatura, {
   foreignKey: "plano_id",
   as: "assinaturas",
