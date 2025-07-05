@@ -1,87 +1,104 @@
+const { MercadoPagoConfig, Payment } = require("mercadopago");
+const { Assinatura } = require("../models/assinaturaModels"); // Ajuste o path conforme seu projeto
+const { Op } = require("sequelize");
+require("dotenv").config();
+
+const client = new MercadoPagoConfig({
+  accessToken: process.env.TOKEN_MERCADO_PAGO,
+});
+
+const payment = new Payment(client);
+
 const webhooks = async (req, res) => {
-  // Tornar a função assíncrona para operações futuras (ex: DB, API)
   try {
     const evento = req.body;
 
-    // --- Validação básica para evitar processar requisições inválidas ---
     if (!evento || Object.keys(evento).length === 0) {
-      console.warn("⚠️ Webhook recebido vazio ou inválido.");
-      return res.status(400).send("Requisição inválida"); // Retorna 400 para bad request
+      console.warn("⚠️ Webhook vazio ou inválido.");
+      return res.status(400).send("Requisição inválida");
     }
 
     console.log("📩 Webhook recebido:");
-    // Usar JSON.stringify para um log mais limpo e legível em ambientes de produção
-    // { depth: null } no console.dir é bom para dev, mas em produção pode ser verboso demais
     console.log(JSON.stringify(evento, null, 2));
 
-    // Verifique o tipo do evento de forma mais robusta, considerando diferentes estruturas
-    // Mercado Pago pode enviar 'type' ou 'topic' para identificar o evento
     const tipo = evento.type || evento.topic || evento.action;
 
-    // --- Processamento de Eventos Específicos ---
-    switch (tipo) {
-      case "payment":
-        // Verifica se evento.data e evento.data.id existem para evitar erros
-        const paymentId = evento.data?.id;
+    if (tipo === "payment") {
+      const paymentId = evento.data?.id;
+      const action = evento.action;
 
-        if (!paymentId) {
-          console.warn("⚠️ Evento de pagamento recebido sem ID de pagamento.");
-          // Pode retornar um 400 ou 200, dependendo da sua tolerância a eventos "incompletos"
-          return res.status(400).send("ID do pagamento ausente.");
-        }
+      if (!paymentId) {
+        console.warn("⚠️ Pagamento sem ID.");
+        return res.status(400).send("ID do pagamento ausente.");
+      }
 
-        console.log(`💰 Pagamento atualizado: ID = ${paymentId}`);
+      console.log(
+        `💰 Pagamento atualizado: ID = ${paymentId} | Action: ${action}`
+      );
 
-        // --- EXERCÍCIO IMPORTANTE: Persistência de Dados e Lógica de Negócio ---
-        // Aqui é onde a lógica real de atualização do seu sistema acontece.
-        // É CRÍTICO que essa parte seja robusta.
+      if (action === "payment.created") {
         try {
-          // Exemplo de como você CHAMARIA uma função para atualizar o banco de dados
-          // await atualizarStatusDoPagamentoNoBanco(paymentId, 'aprovado', evento);
-          // await registrarTransacaoNoCaixa(paymentId, evento.data.transaction_amount);
+          const pagamento = await payment.get({ id: paymentId });
+          const metadata = pagamento.metadata || {};
+          const idInterno = metadata.idInterno;
 
-          // Lembre-se de tratar casos de sucesso e falha da atualização do DB
+          if (!idInterno) {
+            console.warn(`⚠️ Metadata ausente para pagamento ${paymentId}`);
+            return res.status(400).send("Metadata idInterno ausente.");
+          }
+
+          // Buscar assinatura no DB
+          const assinatura = await Assinatura.findOne({
+            where: { id: idInterno },
+          });
+
+          if (!assinatura) {
+            console.warn(
+              `⚠️ Assinatura não encontrada para ID interno ${idInterno}`
+            );
+            return res.status(404).send("Assinatura não encontrada.");
+          }
+
+          const hoje = new Date();
+          let novoVencimento;
+
+          if (assinatura.vencimento_em && assinatura.vencimento_em >= hoje) {
+            // Data válida → soma 30 dias ao vencimento atual
+            novoVencimento = new Date(assinatura.vencimento_em);
+            novoVencimento.setDate(novoVencimento.getDate() + 30);
+          } else {
+            // Vencido → pega hoje + 30 dias
+            novoVencimento = new Date();
+            novoVencimento.setDate(hoje.getDate() + 30);
+          }
+
+          // Atualiza assinatura
+          assinatura.status = "ativa";
+          assinatura.vencimento_em = novoVencimento;
+
+          await assinatura.save();
+
           console.log(
-            `✅ Lógica de negócio para o pagamento ${paymentId} processada.`
+            `✅ Assinatura ${idInterno} atualizada: status=ativa, vencimento_em=${novoVencimento.toISOString()}`
           );
+
+          res.status(200).send("Assinatura atualizada com sucesso.");
         } catch (dbError) {
-          console.error(
-            `❌ Erro ao atualizar o banco de dados para o pagamento ${paymentId}:`,
-            dbError.message
-          );
-          // Decida se você quer retornar 500 aqui para que o Mercado Pago tente novamente,
-          // ou 200 se você registrou o erro e não quer re-tentativas desnecessárias.
-          // Para idempotência, geralmente é melhor retornar 200 se você já "recebeu" o webhook.
-          // O tratamento de erro DEVE garantir que o DB esteja consistente.
-          return res.status(500).send("Erro interno ao processar pagamento.");
+          console.error(`❌ Erro ao atualizar assinatura:`, dbError);
+          return res.status(500).send("Erro ao atualizar assinatura.");
         }
-        break;
-
-      case "merchant_order": // Exemplo de outro tipo de evento comum
-        console.log(`📦 Ordem de compra atualizada: ID = ${evento.resource}`);
-        // Implementar lógica para ordens de compra
-        break;
-
-      // Adicione outros cases para tipos de eventos que você precise processar
-      default:
-        console.log(
-          `ℹ️ Tipo de evento desconhecido ou não processado: ${tipo}`
-        );
-        break;
+      } else {
+        // Se não for payment.updated, só confirma OK
+        res
+          .status(200)
+          .send("Evento payment recebido, mas sem ação específica.");
+      }
+    } else {
+      console.log(`ℹ️ Evento não tratado: ${tipo}`);
+      res.status(200).send("Evento ignorado.");
     }
-
-    // --- Resposta obrigatória e crucial para o Mercado Pago ---
-    // Sempre retorne 200 OK para indicar que você recebeu e processou o webhook.
-    // Isso evita que o Mercado Pago continue tentando reenviar o mesmo evento.
-    res.status(200).send("OK");
   } catch (error) {
-    console.error(
-      "❌ Erro catastrófico no webhook:",
-      error.message,
-      error.stack
-    );
-    // Em caso de erro, o Mercado Pago espera um status diferente de 2xx para re-tentar.
-    // Retornar 500 é o padrão para erros internos.
+    console.error("❌ Erro geral no webhook:", error.message);
     res.status(500).send("Erro interno no webhook");
   }
 };

@@ -18,7 +18,7 @@ async function gerarBoleto(cliente, boleto) {
     payment_method_id: "bolbradesco",
     date_of_expiration: boleto.vencimento || "2025-07-15T23:59:59.000-03:00",
     description:
-      "Pagamento do PDV Cash In Box. Após 15/07/2025 incidirá multa de 2% e juros de 0,33% ao dia.",
+      "Pagamento do PDV Cash In Box. Após o vencimento o programa sera bloqueado ",
     payer: {
       email: cliente.email,
       first_name: cliente.primeiro_nome,
@@ -35,6 +35,10 @@ async function gerarBoleto(cliente, boleto) {
         city: cliente.endereco.cidade,
         federal_unit: cliente.endereco.uf,
       },
+    },
+    metadata: {
+      idInterno: cliente.assinaturaId,
+      clienteId: cliente.id,
     },
   };
 

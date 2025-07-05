@@ -47,12 +47,19 @@ const frequencia = async (req, res) => {
       return res.status(404).json({ message: "Usuário sem assinatura ativa." });
     }
 
-    const dataAtual = new Date();
-    if (assinatura.vencimento_em && assinatura.vencimento_em < dataAtual) {
+    const agora = new Date();
+    const vencimento = new Date(assinatura.vencimento_em);
+
+    // Cria o limite como o último segundo do dia do vencimento
+    const vencimentoLimite = new Date(vencimento.getFullYear(), vencimento.getMonth(), vencimento.getDate(), 23, 59, 59);
+
+    // Se já passou desse limite, bloqueia
+    if (agora > vencimentoLimite) {
       return res.status(403).json({
         message: "Assinatura vencida. Por favor, renove sua assinatura.",
       });
     }
+
 
     if (
       !assinatura.plano ||
@@ -99,6 +106,17 @@ const gerarBoleto = async (req, res) => {
       return res.status(404).json({ error: "Usuário não encontrado." });
     }
 
+    // Verifica se o vencimento está a 10 dias ou menos
+    const vencimento = new Date(assinatura.vencimento_em);
+    const hoje = new Date();
+    const diffEmDias = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
+
+    if (diffEmDias > 10) {
+      return res.status(400).json({
+        error: `Boleto só pode ser gerado a partir de 10 dias antes do vencimento. Faltam ${diffEmDias} dias.`,
+      });
+    }
+
     const boletos = await Boleto.findAll({
       where: {
         usuario_id: userId,
@@ -118,6 +136,8 @@ const gerarBoleto = async (req, res) => {
     }
 
     const cliente = {
+      id: userId,
+      assinaturaId: assinatura.id,
       email: usuario.email || "cliente@exemplo.com",
       primeiro_nome: usuario.nome?.split(" ")[0] || "Cliente",
       ultimo_nome: usuario.nome?.split(" ").slice(1).join(" ") || "Nome",
@@ -131,14 +151,11 @@ const gerarBoleto = async (req, res) => {
 
     const boleto = {
       valor: plano.valor || 199.9,
-      vencimento: assinatura.vencimento_em
-        ? new Date(assinatura.vencimento_em).toISOString()
-        : null,
+      vencimento: vencimento.toISOString(),
     };
 
     const resultado = await gerarBoletoMP.gerarBoleto(cliente, boleto);
 
-    // 💾 Salva no banco
     await Boleto.create({
       usuario_id: userId,
       valor: plano.valor,
@@ -146,7 +163,6 @@ const gerarBoleto = async (req, res) => {
       url: resultado.visualizacao || null,
     });
 
-    // Supondo que resultado tenha os dados do boleto para enviar
     return res.status(200).json(resultado);
   } catch (error) {
     console.error("❌ Erro ao gerar boleto via req.user.id:", error);
@@ -186,10 +202,23 @@ const informacoesPlano = async (req, res) => {
         .json({ message: "Plano não vinculado à assinatura." });
     }
 
+    const vencimento = new Date(assinatura.vencimento_em);
+    const hoje = new Date();
+    const diffEmDias = Math.ceil((vencimento - hoje) / (1000 * 60 * 60 * 24));
+
+    let status_pagamento = "Pagamento recebido";
+
+    if (diffEmDias < 0) {
+      status_pagamento = "Assinatura vencida";
+    } else if (diffEmDias <= 10) {
+      status_pagamento = "Boleto disponível";
+    }
+
     res.status(200).json({
       plano: assinatura.plano.nome,
       valor: assinatura.plano.valor,
       vencimento_em: assinatura.vencimento_em,
+      status_pagamento: status_pagamento,
     });
   } catch (error) {
     console.error("❌ Erro ao obter informações do plano:", error);
