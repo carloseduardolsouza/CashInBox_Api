@@ -51,7 +51,14 @@ const frequencia = async (req, res) => {
     const vencimento = new Date(assinatura.vencimento_em);
 
     // Cria o limite como o último segundo do dia do vencimento
-    const vencimentoLimite = new Date(vencimento.getFullYear(), vencimento.getMonth(), vencimento.getDate(), 23, 59, 59);
+    const vencimentoLimite = new Date(
+      vencimento.getFullYear(),
+      vencimento.getMonth(),
+      vencimento.getDate(),
+      23,
+      59,
+      59
+    );
 
     // Se já passou desse limite, bloqueia
     if (agora > vencimentoLimite) {
@@ -59,7 +66,6 @@ const frequencia = async (req, res) => {
         message: "Assinatura vencida. Por favor, renove sua assinatura.",
       });
     }
-
 
     if (
       !assinatura.plano ||
@@ -158,6 +164,7 @@ const gerarBoleto = async (req, res) => {
 
     await Boleto.create({
       usuario_id: userId,
+      idBoleto: resultado.id,
       valor: plano.valor,
       status: "PENDENTE",
       url: resultado.visualizacao || null,

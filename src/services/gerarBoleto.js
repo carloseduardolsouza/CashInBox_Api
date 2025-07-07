@@ -48,11 +48,13 @@ async function gerarBoleto(cliente, boleto) {
     const linkVisualizacao =
       response.transaction_details?.external_resource_url;
     const pdfLink = response.point_of_interaction?.transaction_data?.ticket_url;
+    const idBoleto = response.id
 
     return {
       message: "Boleto gerado com sucesso!",
       visualizacao: linkVisualizacao || null,
       pdf: pdfLink || null,
+      id: idBoleto || 1,
     };
   } catch (error) {
     console.error("❌ Erro ao gerar boleto:", error);
