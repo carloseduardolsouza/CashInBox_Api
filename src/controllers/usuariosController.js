@@ -4,7 +4,8 @@ const bcrypt = require("bcrypt");
 const cadastrar = async (req, res) => {
   try {
     // Desestrutura os campos esperados do corpo da requisição JSON.
-    const { nome, email, senha, role, ativo } = req.body;
+    const { nome, email, senha, role, ativo, cpf_cnpj, estado, cidade, rua } =
+      req.body;
 
     // --- Validação Básica ---
     // Verifica se os campos obrigatórios estão presentes.
@@ -28,6 +29,10 @@ const cadastrar = async (req, res) => {
       senha_hash, // Salva o hash da senha, não a senha em texto puro
       role: role || "user", // Se 'role' não for fornecido, define o padrão como 'user'
       ativo: ativo !== undefined ? ativo : 1, // Se 'ativo' não for fornecido, define o padrão como 1 (true)
+      rua,
+      cidade,
+      estado,
+      cpf_cnpj,
     });
 
     // --- Preparação da Resposta ---
@@ -78,76 +83,49 @@ const listar = async (req, res) => {
 
 const editar = async (req, res) => {
   try {
-    // Pega o ID do usuário dos parâmetros da URL (ex: /usuarios/123)
     const { id } = req.params;
-    // Pega os dados a serem atualizados do corpo da requisição
-    const { nome, email, senha, role, ativo } = req.body;
+    const { nome, email, senha, ativo, cpf_cnpj, estado, cidade, rua } =
+      req.body;
 
-    // --- Encontrar o Usuário ---
-    // Busca o usuário no banco de dados pelo ID (Primary Key)
     const usuario = await usuariosModels.findByPk(id);
 
-    // Se o usuário não for encontrado, retorna um status 404 (Not Found)
     if (!usuario) {
       return res.status(404).json({ message: "Usuário não encontrado." });
     }
 
-    // --- Preparar Dados para Atualização ---
     const dadosParaAtualizar = {};
 
-    if (nome !== undefined) {
-      dadosParaAtualizar.nome = nome;
-    }
-    if (email !== undefined) {
-      // Opcional: Se o email estiver sendo atualizado, pode-se adicionar uma validação extra
-      // para garantir que o novo email não pertence a outro usuário (fora a validação do modelo)
-      dadosParaAtualizar.email = email;
-    }
-    if (role !== undefined) {
-      dadosParaAtualizar.role = role;
-    }
-    // Para 'ativo', garanta que o valor é um booleano ou 0/1 se estiver usando DataTypes.TINYINT(1)
-    if (ativo !== undefined) {
-      dadosParaAtualizar.ativo = ativo;
-    }
+    if (nome !== undefined) dadosParaAtualizar.nome = nome;
+    if (email !== undefined) dadosParaAtualizar.email = email;
+    if (ativo !== undefined) dadosParaAtualizar.ativo = ativo;
+    if (cpf_cnpj !== undefined) dadosParaAtualizar.cpf_cnpj = cpf_cnpj;
+    if (estado !== undefined) dadosParaAtualizar.estado = estado;
+    if (cidade !== undefined) dadosParaAtualizar.cidade = cidade;
+    if (rua !== undefined) dadosParaAtualizar.rua = rua;
 
-    // --- Hashing da Nova Senha (se fornecida) ---
-    // Se uma nova senha for fornecida no corpo da requisição, ela deve ser hasheada
     if (senha !== undefined && senha !== null && senha.trim() !== "") {
       dadosParaAtualizar.senha_hash = await bcrypt.hash(senha, 10);
     }
 
-    // --- Atualizar o Usuário ---
-    // Usa o método 'update' da instância do modelo para aplicar as mudanças.
-    // O primeiro argumento é um objeto com os campos a serem atualizados.
-    // O segundo argumento é um objeto de opções (neste caso, não precisamos de WHERE, pois já temos a instância).
     await usuario.update(dadosParaAtualizar);
 
-    // --- Preparação da Resposta ---
-    // Converte a instância do Sequelize para um objeto JSON plano.
     const usuarioAtualizado = usuario.toJSON();
-    // Remove o hash da senha do objeto de retorno para segurança.
     delete usuarioAtualizado.senha_hash;
 
-    // Retorna uma resposta de sucesso (status 200 OK) com os dados do usuário atualizado.
     res.status(200).json({
       message: "Usuário atualizado com sucesso!",
       usuario: usuarioAtualizado,
     });
   } catch (error) {
-    // --- Tratamento de Erros ---
     console.error("Erro ao editar usuário:", error);
 
-    // Trata erros de violação de unicidade (ex: tentar atualizar para um email já existente).
     if (error.name === "SequelizeUniqueConstraintError") {
       return res.status(409).json({
-        message:
-          "O email fornecido já está cadastrado para outro usuário. Por favor, use outro email.",
+        message: "O email fornecido já está cadastrado para outro usuário.",
         error: error.message,
       });
     }
 
-    // Para outros erros, retorna um status 500 (Erro Interno do Servidor).
     res.status(500).json({
       message: "Ocorreu um erro ao tentar editar o usuário.",
       error: error.message,
@@ -183,12 +161,10 @@ const excluir = async (req, res) => {
     console.error("Erro ao excluir usuário:", error);
 
     // Para outros erros, retorna um status 500 (Erro Interno do Servidor).
-    res
-      .status(500)
-      .json({
-        message: "Ocorreu um erro ao tentar excluir o usuário.",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Ocorreu um erro ao tentar excluir o usuário.",
+      error: error.message,
+    });
   }
 };
 
