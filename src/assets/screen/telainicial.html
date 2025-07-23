@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CashInBox - Sistema PDV Completo para Seu Negócio</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      :root {
+        --primary: #4f46e5;
+        --primary-dark: #4338ca;
+        --primary-light: #6366f1;
+        --whatsapp: #25d366;
+        --whatsapp-dark: #1ebe5d;
+        --bg-light: #f9f9fb;
+        --bg-white: #ffffff;
+        --text-dark: #1f1f1f;
+        --text-medium: #2b2b2b;
+        --text-light: #555;
+        --text-lighter: #888;
+        --border-light: #e5e7eb;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-light);
+        color: var(--text-dark);
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      /* Header */
+      header {
+        text-align: center;
+        padding: 80px 20px 60px;
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+
+      header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><pattern id="grain" width="100" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="20" fill="url(%23grain)"/></svg>');
+        opacity: 0.3;
+      }
+
+      header h1 {
+        font-size: 3.2rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        position: relative;
+        z-index: 1;
+      }
+
+      header p {
+        margin-top: 15px;
+        font-size: 1.3rem;
+        opacity: 0.9;
+        font-weight: 400;
+        position: relative;
+        z-index: 1;
+      }
+
+      .badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        margin-top: 20px;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+      }
+
+      /* Hero Section */
+      .hero {
+        max-width: 1200px;
+        margin: -40px auto 80px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+        gap: 50px;
+        background: var(--bg-white);
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-content {
+        flex: 1 1 450px;
+      }
+
+      .hero-content h2 {
+        font-size: 2.6rem;
+        margin-bottom: 25px;
+        color: var(--text-dark);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      .hero-content p {
+        color: var(--text-light);
+        font-size: 1.2rem;
+        margin-bottom: 25px;
+        line-height: 1.7;
+      }
+
+      .stats {
+        display: flex;
+        gap: 30px;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 2.2rem;
+        font-weight: 800;
+        color: var(--primary);
+        display: block;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+        margin-top: 5px;
+      }
+
+      .hero-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        padding: 15px 30px;
+        background: var(--whatsapp);
+        color: white;
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+      }
+
+      .btn-primary:hover {
+        background: var(--whatsapp-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+      }
+
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        padding: 15px 30px;
+        background: transparent;
+        color: var(--primary);
+        border: 2px solid var(--primary);
+        border-radius: 10px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+      }
+
+      .btn-secondary:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      .hero-image {
+        flex: 1 1 400px;
+        text-align: center;
+      }
+
+      .hero-image img {
+        max-width: 100%;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+      }
+
+      /* Features */
+      .features {
+        max-width: 1200px;
+        margin: 0 auto 80px;
+        padding: 0 20px;
+      }
+
+      .features h2 {
+        text-align: center;
+        font-size: 2.4rem;
+        margin-bottom: 50px;
+        color: var(--text-dark);
+        font-weight: 700;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+      }
+
+      .feature-card {
+        background: var(--bg-white);
+        padding: 35px 25px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: var(--shadow-light);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-light);
+      }
+
+      .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow);
+      }
+
+      .feature-icon {
+        width: 70px;
+        height: 70px;
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light)
+        );
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2rem;
+      }
+
+      .feature-card h3 {
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        color: var(--text-medium);
+        font-weight: 600;
+      }
+
+      .feature-card p {
+        color: var(--text-light);
+        line-height: 1.6;
+      }
+
+      /* Problems Section */
+      .problems-section {
+        background: var(--bg-white);
+        padding: 80px 20px;
+        margin-bottom: 80px;
+      }
+
+      .problems-content {
+        max-width: 1000px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .problems-content h2 {
+        font-size: 2.4rem;
+        margin-bottom: 20px;
+        color: var(--text-dark);
+        font-weight: 700;
+      }
+
+      .problems-content .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        margin-bottom: 50px;
+      }
+
+      .problems-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 50px;
+      }
+
+      .problem-item {
+        background: #fff5f5;
+        border-left: 4px solid #ef4444;
+        padding: 25px;
+        border-radius: 12px;
+        text-align: left;
+      }
+
+      .problem-item h3 {
+        color: #dc2626;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+
+      .solution-highlight {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 40px;
+        border-radius: 16px;
+        text-align: center;
+      }
+
+      .solution-highlight h3 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+      }
+
+      /* Benefits Section */
+      .benefits-section {
+        max-width: 1200px;
+        margin: 0 auto 80px;
+        padding: 0 20px;
+      }
+
+      .benefits-container {
+        display: flex;
+        align-items: center;
+        gap: 60px;
+        flex-wrap: wrap;
+      }
+
+      .benefits-content {
+        flex: 1 1 500px;
+      }
+
+      .benefits-content h2 {
+        font-size: 2.4rem;
+        margin-bottom: 30px;
+        color: var(--text-dark);
+        font-weight: 700;
+      }
+
+      .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 25px;
+        padding: 20px;
+        background: var(--bg-white);
+        border-radius: 12px;
+        box-shadow: var(--shadow-light);
+      }
+
+      .benefit-icon {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, var(--whatsapp), #22c55e);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 20px;
+        flex-shrink: 0;
+        font-size: 1.5rem;
+      }
+
+      .benefit-text h3 {
+        font-size: 1.2rem;
+        color: var(--text-medium);
+        margin-bottom: 8px;
+        font-weight: 600;
+      }
+
+      .benefit-text p {
+        color: var(--text-light);
+        font-size: 0.95rem;
+        line-height: 1.5;
+      }
+
+      .benefits-image {
+        flex: 1 1 400px;
+        text-align: center;
+      }
+
+      .benefits-image img {
+        max-width: 100%;
+        border-radius: 16px;
+      }
+
+      /* Pricing Section */
+      .pricing-section {
+        background: var(--bg-white);
+        padding: 80px 20px;
+        margin-bottom: 80px;
+      }
+
+      .pricing-content {
+        max-width: 1000px;
+        margin: 0 auto;
+        text-align: center;
+      }
+
+      .pricing-content h2 {
+        font-size: 2.4rem;
+        margin-bottom: 20px;
+        color: var(--text-dark);
+        font-weight: 700;
+      }
+
+      .pricing-content .subtitle {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        margin-bottom: 50px;
+      }
+
+      .pricing-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .pricing-card {
+        background: white;
+        border: 2px solid var(--border-light);
+        border-radius: 16px;
+        padding: 40px 30px;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .pricing-card.featured {
+        border-color: var(--primary);
+        transform: scale(1.05);
+      }
+
+      .pricing-card.featured::before {
+        content: "Mais Popular";
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .pricing-card:hover {
+        box-shadow: var(--shadow);
+        transform: translateY(-5px);
+      }
+
+      .pricing-card.featured:hover {
+        transform: scale(1.05) translateY(-5px);
+      }
+
+      .plan-name {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 10px;
+      }
+
+      .plan-price {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: 5px;
+      }
+
+      .plan-period {
+        color: var(--text-light);
+        margin-bottom: 30px;
+      }
+
+      .plan-features {
+        list-style: none;
+        margin-bottom: 30px;
+      }
+
+      .plan-features li {
+        padding: 8px 0;
+        color: var(--text-light);
+        position: relative;
+        padding-left: 25px;
+      }
+
+      .plan-features li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: var(--whatsapp);
+        font-weight: bold;
+      }
+
+      .plan-button {
+        width: 100%;
+        padding: 15px;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .plan-button:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+      }
+
+      /* Social Proof */
+      .social-proof {
+        max-width: 1200px;
+        margin: 0 auto 80px;
+        padding: 0 20px;
+      }
+
+      .social-proof h2 {
+        text-align: center;
+        font-size: 2.4rem;
+        margin-bottom: 20px;
+        color: var(--text-dark);
+        font-weight: 700;
+      }
+
+      .social-proof .subtitle {
+        text-align: center;
+        font-size: 1.2rem;
+        color: var(--text-light);
+        margin-bottom: 50px;
+      }
+
+      .testimonials-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+      }
+
+      .testimonial {
+        background: var(--bg-white);
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: var(--shadow-light);
+        position: relative;
+      }
+
+      .testimonial::before {
+        content: '"';
+        position: absolute;
+        top: -10px;
+        left: 20px;
+        font-size: 4rem;
+        color: var(--primary);
+        opacity: 0.3;
+      }
+
+      .testimonial-text {
+        font-style: italic;
+        color: var(--text-light);
+        margin-bottom: 20px;
+        font-size: 1.1rem;
+        line-height: 1.6;
+      }
+
+      .testimonial-author {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .author-avatar {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light)
+        );
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+      }
+
+      .author-info strong {
+        display: block;
+        color: var(--text-dark);
+        font-weight: 600;
+      }
+
+      .author-info span {
+        color: var(--text-light);
+        font-size: 0.9rem;
+      }
+
+      /* Trust Indicators */
+      .trust-section {
+        background: var(--bg-white);
+        padding: 60px 20px;
+        text-align: center;
+        margin-bottom: 80px;
+      }
+
+      .trust-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .trust-indicators {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 40px;
+        flex-wrap: wrap;
+        margin-top: 40px;
+      }
+
+      .trust-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--text-light);
+        font-weight: 500;
+      }
+
+      .trust-icon {
+        width: 24px;
+        height: 24px;
+        background: var(--whatsapp);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.8rem;
+      }
+
+      /* Urgency Section */
+      .urgency-section {
+        background: linear-gradient(135deg, #fef3c7, #fbbf24);
+        padding: 50px 20px;
+        text-align: center;
+        margin-bottom: 80px;
+        border-radius: 20px;
+        max-width: 1200px;
+        margin-left: auto;
+        margin-right: auto;
+        margin-bottom: 80px;
+      }
+
+      .urgency-content h2 {
+        font-size: 2rem;
+        color: var(--text-dark);
+        margin-bottom: 15px;
+        font-weight: 700;
+      }
+
+      .urgency-content p {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 25px;
+      }
+
+      /* Final CTA */
+      .final-cta {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-dark)
+        );
+        color: white;
+        padding: 80px 20px;
+        text-align: center;
+      }
+
+      .final-cta h2 {
+        font-size: 2.6rem;
+        margin-bottom: 20px;
+        font-weight: 700;
+      }
+
+      .final-cta p {
+        font-size: 1.3rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+      }
+
+      .cta-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .btn-cta-primary {
+        display: inline-flex;
+        align-items: center;
+        padding: 20px 40px;
+        background: var(--whatsapp);
+        color: white;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 1.2rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+      }
+
+      .btn-cta-primary:hover {
+        background: var(--whatsapp-dark);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5);
+      }
+
+      /* Footer */
+      footer {
+        background: var(--text-dark);
+        color: white;
+        text-align: center;
+        padding: 40px 20px;
+        margin-top: 0;
+      }
+
+      .footer-content {
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        color: white;
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        opacity: 1;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        header h1 {
+          font-size: 2.5rem;
+        }
+
+        .hero-content h2 {
+          font-size: 2rem;
+        }
+
+        .stats {
+          justify-content: center;
+        }
+
+        .hero-buttons {
+          justify-content: center;
+        }
+
+        .features h2,
+        .benefits-content h2,
+        .social-proof h2 {
+          font-size: 2rem;
+        }
+
+        .pricing-card.featured {
+          transform: none;
+        }
+
+        .final-cta h2 {
+          font-size: 2rem;
+        }
+
+        .btn-cta-primary {
+          padding: 15px 30px;
+          font-size: 1.1rem;
+        }
+      }
+
+      /* Animations */
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .hero,
+      .feature-card,
+      .benefit-item,
+      .testimonial {
+        animation: fadeInUp 0.6s ease-out;
+      }
+
+      /* Floating WhatsApp Button */
+      .whatsapp-float {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: var(--whatsapp);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(37, 211, 102, 0.4);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: white;
+        font-size: 1.5rem;
+      }
+
+      .whatsapp-float:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 25px rgba(37, 211, 102, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="badge">✨ Mais de 1.500 empresas já confiam no CashInBox</div>
+      <h1>CashInBox</h1>
+      <p>O sistema PDV completo que vai revolucionar a gestão do seu negócio</p>
+    </header>
+
+    <section class="hero">
+      <div class="hero-content">
+        <h2>Transforme Sua Loja em Uma Máquina de Vendas</h2>
+        <p>
+          Controle total de vendas, estoque, clientes e notas fiscais em uma
+          única plataforma. Ideal para móveis, eletrônicos e informática.
+        </p>
+
+        <div class="stats">
+          <div class="stat-item">
+            <span class="stat-number">1.500+</span>
+            <span class="stat-label">Clientes Ativos</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">99.9%</span>
+            <span class="stat-label">Uptime Garantido</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-number">24/7</span>
+            <span class="stat-label">Suporte Técnico</span>
+          </div>
+        </div>
+
+        <div class="hero-buttons">
+          <a href="https://wa.me/5562993362090" class="btn-primary">
+            💬 Teste Grátis Agora
+          </a>
+          <a href="#demo" class="btn-secondary"> ▶️ Ver Demonstração </a>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img
+          src="https://via.placeholder.com/500x350?text=CashInBox+Dashboard"
+          alt="Dashboard CashInBox"
+        />
+      </div>
+    </section>
+
+    <section class="problems-section">
+      <div class="problems-content">
+        <h2>Pare de Perder Dinheiro com Esses Problemas</h2>
+        <p class="subtitle">
+          A maioria dos lojistas ainda enfrenta esses desafios diariamente
+        </p>
+
+        <div class="problems-grid">
+          <div class="problem-item">
+            <h3>🚫 Controle Manual do Estoque</h3>
+            <p>
+              Planilhas desatualizadas, produtos em falta e vendas perdidas por
+              falta de controle adequado.
+            </p>
+          </div>
+          <div class="problem-item">
+            <h3>📊 Relatórios Confusos</h3>
+            <p>
+              Sem visibilidade real do desempenho da loja, dificultando tomadas
+              de decisão estratégicas.
+            </p>
+          </div>
+          <div class="problem-item">
+            <h3>🧾 Burocracia Fiscal</h3>
+            <p>
+              Emissão de notas fiscais complicada e demorada, gerando estresse e
+              possíveis problemas legais.
+            </p>
+          </div>
+          <div class="problem-item">
+            <h3>💳 Pagamentos Desorganizados</h3>
+            <p>
+              Dificuldade para controlar diferentes formas de pagamento e
+              conciliação bancária.
+            </p>
+          </div>
+        </div>
+
+        <div class="solution-highlight">
+          <h3>O CashInBox Resolve Todos Esses Problemas!</h3>
+          <p>
+            Sistema completo, automático e intuitivo para você focar no que
+            realmente importa: vender mais!
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <h2>Tudo Que Sua Loja Precisa em Um Só Lugar</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">📦</div>
+          <h3>Gestão Inteligente de Estoque</h3>
+          <p>
+            Controle automático de entrada e saída, alertas de estoque baixo e
+            relatórios detalhados em tempo real.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🧾</div>
+          <h3>Emissão Automática de NFC-e</h3>
+          <p>
+            Notas fiscais emitidas automaticamente com total conformidade legal.
+            Sem complicação, sem erro.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Relatórios e Dashboard</h3>
+          <p>
+            Visualize o desempenho da sua loja com gráficos e métricas que
+            realmente importam para o seu negócio.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💳</div>
+          <h3>Múltiplas Formas de Pagamento</h3>
+          <p>
+            Cartão, PIX, dinheiro, parcelamentos e integração com maquininhas.
+            Facilite a vida do seu cliente.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">👥</div>
+          <h3>CRM Integrado</h3>
+          <p>
+            Cadastro completo de clientes, histórico de compras e ferramentas
+            para fidelização.
+          </p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Acesso Mobile</h3>
+          <p>
+            Gerencie sua loja de qualquer lugar pelo celular ou tablet.
+            Liberdade total para o empreendedor.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="benefits-section">
+      <div class="benefits-container">
+        <div class="benefits-content">
+          <h2>Por Que Mais de 1.500 Lojistas Escolheram o CashInBox?</h2>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">⚡</div>
+            <div class="benefit-text">
+              <h3>Implementação Rápida</h3>
+              <p>
+                Sistema pronto para usar em menos de 24 horas. Nossa equipe
+                cuida de toda a configuração para você.
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">💰</div>
+            <div class="benefit-text">
+              <h3>Aumento Real de Vendas</h3>
+              <p>
+                Clientes relatam crescimento médio de 30% nas vendas após
+                implementar o CashInBox.
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">🛡️</div>
+            <div class="benefit-text">
+              <h3>Segurança Total</h3>
+              <p>
+                Dados protegidos com criptografia de ponta e backup automático
+                na nuvem. Sua informação sempre segura.
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">🎯</div>
+            <div class="benefit-text">
+              <h3>Especializado no Seu Segmento</h3>
+              <p>
+                Desenvolvido especificamente para lojas de móveis, eletrônicos e
+                informática. Conhecemos suas necessidades.
+              </p>
+            </div>
+          </div>
+
+          <div class="benefit-item">
+            <div class="benefit-icon">📞</div>
+            <div class="benefit-text">
+              <h3>Suporte Humanizado</h3>
+              <p>
+                Equipe brasileira disponível por WhatsApp, telefone e chat.
+                Resolvemos suas dúvidas na hora.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="benefits-image">
+          <img
+            src="https://via.placeholder.com/450x400?text=Benefícios+CashInBox"
+            alt="Benefícios CashInBox"
+          />
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing-section">
+      <div class="pricing-content">
+        <h2>Escolha o Plano Ideal Para Seu Negócio</h2>
+        <p class="subtitle">
+          Preços justos e transparentes. Sem pegadinhas ou taxas ocultas.
+        </p>
+
+        <div class="pricing-cards">
+          <div class="pricing-card">
+            <div class="plan-name">Starter</div>
+            <div class="plan-price">R$ 89</div>
+            <div class="plan-period">por mês</div>
+            <ul class="plan-features">
+              <li>Até 1.000 produtos</li>
+              <li>1 usuário</li>
+              <li>Emissão de NFC-e</li>
+              <li>Relatórios básicos</li>
+              <li>Suporte por email</li>
+            </ul>
+            <a
+              href="https://wa.me/5562993362090?text=Tenho interesse no plano Starter"
+              class="plan-button"
+              >Começar Agora</a
+            >
+          </div>
+
+          <div class="pricing-card featured">
+            <div class="plan-name">Professional</div>
+            <div class="plan-price">R$ 149</div>
+            <div class="plan-period">por mês</div>
+            <ul class="plan-features">
+              <li>Produtos ilimitados</li>
+              <li>Até 3 usuários</li>
+              <li>Emissão de NFC-e</li>
+              <li>Relatórios avançados</li>
+              <li>CRM integrado</li>
+              <li>Suporte prioritário</li>
+              <li>App mobile</li>
+            </ul>
+            <a
+              href="https://wa.me/5562993362090?text=Tenho interesse no plano Professional"
+              class="plan-button"
+              >Mais Popular</a
+            >
+          </div>
+
+          <div class="pricing-card">
+            <div class="plan-name">Enterprise</div>
+            <div class="plan-price">R$ 299</div>
+            <div class="plan-period">por mês</div>
+            <ul class="plan-features">
+              <li>Tudo do Professional</li>
+              <li>Usuários ilimitados</li>
+              <li>Múltiplas lojas</li>
+              <li>API personalizada</li>
+              <li>Relatórios customizados</li>
+              <li>Gerente de conta dedicado</li>
+            </ul>
+            <a
+              href="https://wa.me/5562993362090?text=Tenho interesse no plano Enterprise"
+              class="plan-button"
+              >Solicitar Proposta</a
+            >
+          </div>
+        </div>
+
+        <p style="color: var(--text-light); margin-top: 20px">
+          💡 <strong>Primeira semana grátis</strong> em todos os planos. Cancele
+          quando quiser, sem multa.
+        </p>
+      </div>
+    </section>
+
+    <section class="social-proof">
+      <h2>Veja o Que Nossos Clientes Estão Dizendo</h2>
+      <p class="subtitle">
+        Mais de 1.500 empresas já transformaram seus negócios com o CashInBox
+      </p>
+
+      <div class="testimonials-grid">
+        <div class="testimonial">
+          <p class="testimonial-text">
+            "Antes do CashInBox, eu perdia horas controlando estoque em
+            planilhas. Agora tudo é automático e posso focar em vender. Minhas
+            vendas aumentaram 40% em 6 meses!"
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">JS</div>
+            <div class="author-info">
+              <strong>João Silva</strong>
+              <span>Silva Móveis - Goiânia/GO</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial">
+          <p class="testimonial-text">
+            "O sistema é muito intuitivo. Meus funcionários aprenderam a usar em
+            poucas horas. A emissão de notas fiscais ficou muito mais rápida e
+            sem erros."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">AP</div>
+            <div class="author-info">
+              <strong>Ana Pereira</strong>
+              <span>Eletrônicos VIP - Brasília/DF</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial">
+          <p class="testimonial-text">
+            "O suporte é excepcional! Sempre que preciso, eles respondem
+            rapidamente pelo WhatsApp. O investimento se pagou em menos de 3
+            meses."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">MS</div>
+            <div class="author-info">
+              <strong>Marcos Santos</strong>
+              <span>TechInfo Informática - Anápolis/GO</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial">
+          <p class="testimonial-text">
+            "Com os relatórios do CashInBox, consegui identificar meus produtos
+            mais vendidos e otimizar meu estoque. Isso me deu muito mais
+            controle financeiro."
+          </p>
+          <div class="testimonial-author">
+            <div class="author-avatar">CF</div>
+            <div class="author-info">
+              <strong>Carla Fernandes</strong>
+              <span>Casa & Decoração - Uberlândia/MG</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-section">
+      <div class="trust-content">
+        <h2>Sua Segurança é Nossa Prioridade</h2>
+        <div class="trust-indicators">
+          <div class="trust-item">
+            <div class="trust-icon">🔒</div>
+            <span>SSL Certificado</span>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">☁️</div>
+            <span>Backup na Nuvem</span>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">🛡️</div>
+            <span>LGPD Compliance</span>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">⚡</div>
+            <span>99.9% Uptime</span>
+          </div>
+          <div class="trust-item">
+            <div class="trust-icon">🇧🇷</div>
+            <span>Servidores no Brasil</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="urgency-section">
+      <div class="urgency-content">
+        <h2>⏰ Oferta Especial por Tempo Limitado!</h2>
+        <p>
+          Ganhe <strong>30 dias grátis</strong> + desconto de 20% nos primeiros
+          6 meses para novos clientes que contratarem até o final deste mês.
+        </p>
+        <a
+          href="https://wa.me/5562993362090?text=Quero aproveitar a oferta especial!"
+          class="btn-primary"
+        >
+          🔥 Quero Aproveitar a Oferta!
+        </a>
+      </div>
+    </section>
+
+    <section class="final-cta">
+      <h2>Pronto Para Revolucionar Sua Loja?</h2>
+      <p>
+        Junte-se a mais de 1.500 lojistas que já transformaram seus negócios com
+        o CashInBox
+      </p>
+
+      <div class="cta-buttons">
+        <a
+          href="https://wa.me/5562993362090?text=Quero testar o CashInBox gratuitamente!"
+          class="btn-cta-primary"
+        >
+          🚀 Começar Teste Agora
+        </a>
+      </div>
+
+      <p style="margin-top: 20px; font-size: 1rem; opacity: 0.8">
+        ✅ Sem compromisso • ✅ Cancelamento gratuito • ✅ Suporte incluído
+      </p>
+    </section>
+
+    <footer>
+      <div class="footer-content">
+        <div class="footer-links">
+          <a href="#privacidade">Política de Privacidade</a>
+          <a href="#termos">Termos de Uso</a>
+          <a href="#suporte">Suporte</a>
+          <a href="#sobre">Sobre Nós</a>
+        </div>
+        <p>&copy; 2025 CashInBox. Todos os direitos reservados.</p>
+        <p style="margin-top: 10px; opacity: 0.7">
+          Transformando negócios desde 2024 • CNPJ: XX.XXX.XXX/0001-XX
+        </p>
+      </div>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a
+      href="https://wa.me/5562993362090"
+      class="whatsapp-float"
+      target="_blank"
+      title="Fale conosco no WhatsApp"
+    >
+      💬
+    </a>
+
+    <script>
+      // Simple scroll animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+          }
+        });
+      }, observerOptions);
+
+      // Observe all animated elements
+      document
+        .querySelectorAll(
+          ".feature-card, .benefit-item, .testimonial, .pricing-card"
+        )
+        .forEach((el) => {
+          el.style.opacity = "0";
+          el.style.transform = "translateY(30px)";
+          el.style.transition = "all 0.6s ease-out";
+          observer.observe(el);
+        });
+
+      // WhatsApp float button pulse animation
+      setInterval(() => {
+        const whatsappBtn = document.querySelector(".whatsapp-float");
+        whatsappBtn.style.transform = "scale(1.1)";
+        setTimeout(() => {
+          whatsappBtn.style.transform = "scale(1)";
+        }, 200);
+      }, 3000);
+    </script>
+  </body>
+</html>

@@ -18,6 +18,7 @@ const admRoutes = require("./routes/admRoutes");
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const webhooksRoute = require("./routes/webhooksRoute");
+const screenRoute = require("./routes/screenRoute")
 
 // Roda uma vez na inicialização
 atualizarStatusBoletos();
@@ -26,6 +27,8 @@ atualizarStatusBoletos();
 setInterval(atualizarStatusBoletos, 60 * 60 * 1000);
 
 app.use(express.json());
+
+app.use("/" , screenRoute)
 
 app.use("/admin", verifyToken.verifyAdminToken, admRoutes);
 
