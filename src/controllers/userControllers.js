@@ -2,8 +2,9 @@
 const Usuario = require("../models/usuariosModels");
 const Assinatura = require("../models/assinaturaModels"); // Verifique o nome do arquivo (singular/plural)
 const Plano = require("../models/planosModels");
-
 const Boleto = require("../models/boletosModels");
+
+const { getClientIp } = require("../utils/getClientIp");
 
 const gerarBoletoMP = require("../services/gerarBoleto");
 const { Op } = require("sequelize");
@@ -11,6 +12,35 @@ const { Op } = require("sequelize");
 const frequencia = async (req, res) => {
   try {
     const userId = req.userId;
+
+    // CAPTURA IP DO CLIENTE (forçando IPv4 quando disponível)
+    let clientIp = getClientIp(req);
+
+    // Se vier IPv6 (::ffff:IPv4 ou outro), extrai IPv4
+    if (clientIp && clientIp.includes("::ffff:")) {
+      clientIp = clientIp.replace("::ffff:", "");
+    }
+
+    // Se ainda for IPv6 puro, tenta buscar um IPv4 válido no header
+    if (clientIp && clientIp.includes(":")) {
+      const xff = req.headers["x-forwarded-for"];
+      if (xff) {
+        const ipv4Candidate = xff
+          .split(",")
+          .map((ip) => ip.trim())
+          .find((ip) => /^\d{1,3}(\.\d{1,3}){3}$/.test(ip));
+        if (ipv4Candidate) {
+          clientIp = ipv4Candidate;
+        }
+      }
+    }
+
+    // LOGA NO CONSOLE SEM MISÉRIA
+    console.log(
+      `[LOGIN] ${new Date().toISOString()} | userId=${
+        userId ?? "unknown"
+      } | ip=${clientIp}`
+    );
 
     if (!userId) {
       return res.status(401).json({
@@ -25,6 +55,7 @@ const frequencia = async (req, res) => {
       return res.status(404).json({ message: "Usuário não encontrado." });
     }
 
+    // Atualiza apenas ultimo_acesso
     await usuario.update({
       ultimo_acesso: new Date(),
     });
@@ -50,7 +81,7 @@ const frequencia = async (req, res) => {
     const agora = new Date();
     const vencimento = new Date(assinatura.vencimento_em);
 
-    // Cria o limite como o último segundo do dia do vencimento
+    // Limite: último segundo do dia do vencimento
     const vencimentoLimite = new Date(
       vencimento.getFullYear(),
       vencimento.getMonth(),
@@ -60,7 +91,7 @@ const frequencia = async (req, res) => {
       59
     );
 
-    // Se já passou desse limite, bloqueia
+    // Bloqueia se passou
     if (agora > vencimentoLimite) {
       return res.status(403).json({
         message: "Assinatura vencida. Por favor, renove sua assinatura.",
@@ -69,8 +100,8 @@ const frequencia = async (req, res) => {
 
     if (
       !assinatura.plano ||
-      assinatura.plano.tarefas_inclusas === undefined || // Verifica se tarefas_inclusas existe
-      assinatura.plano.tarefas_inclusas === null // E se não é nula
+      assinatura.plano.tarefas_inclusas === undefined ||
+      assinatura.plano.tarefas_inclusas === null
     ) {
       return res.status(500).json({
         message:
@@ -82,6 +113,7 @@ const frequencia = async (req, res) => {
       message: "Último acesso atualizado com sucesso!",
       vencimento_assinatura: assinatura.vencimento_em,
       nivel_acesso: assinatura.plano.tarefas_inclusas,
+      ip_registrado: clientIp,
     });
   } catch (error) {
     console.error("Erro na função frequencia:", error);

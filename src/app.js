@@ -12,6 +12,8 @@ app.use(
   })
 );
 
+app.set('trust proxy', true);
+
 const verifyToken = require("./middlewares/verifyToken");
 
 const admRoutes = require("./routes/admRoutes");
