@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const path = require('path');
 
 const { atualizarStatusBoletos } = require("./services/rotinas");
 const cors = require("cors");
@@ -11,6 +12,9 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Isso torna a pasta "public" acessível via navegador
+app.use('/assets', express.static(path.join(__dirname, 'public/assets')));
 
 app.set('trust proxy', true);
 
